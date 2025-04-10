@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maze Game</title>
+  <link rel="stylesheet" href="styles.css">
+  <head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+  </head>
+  </head>
+</head>
+<body>
+
+  <h1>Maze Game</h1>
+
+  <canvas id="mainForm" width="500" height="500"></canvas>
+  <div id="timerDisplay">Time: 0s</div>
+
+  <div id="controlBusttons">
+    <button id="up">Up</button>
+    <button id="left">Left</button>
+    <button id="down">Down</button>
+    <button id="right">Right</button>
+  </div>
+
+  <div>
+    <button id="generate">Generate New Maze</button>
+  </div>
+
+  <div id="mazeControl">
+    <input type="number" id="cols" value="20">
+    <input type="number" id="rows" value="20">
+  </div>
+
+  <h2>Achievements:</h2>
+  <ul id="achievementList"></ul>
+
+  <script src="script.js"></script>
+  
+</body>
+</html>
