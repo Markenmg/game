@@ -7,16 +7,14 @@ let player;
 let achievements;
 let timerInterval;
 let elapsedTime = 0;
+let currentLevel = 1;
+let levelCompleted = false;
 
 class Player {
   constructor() {
     this.reset();
   }
 
-  reset() {
-    this.col = 0;
-    this.row = 0;
-  }
 }
 
 class MazeCell {
@@ -33,11 +31,7 @@ class MazeCell {
 
 class Maze {
   constructor(cols, rows, cellSize) {
-    this.backgroundColor = "#ffffff";
     this.cols = cols;
-    this.endColor = "#88FF88";
-    this.mazeColor = "#000000";
-    this.playerColor = "#880088";
     this.rows = rows;
     this.cellSize = cellSize;
     this.cells = [];
@@ -49,9 +43,10 @@ class Maze {
     mazeWidth = this.cols * this.cellSize;
     canvas.height = mazeHeight;
     canvas.width = mazeWidth;
-    canvas.style.height = mazeHeight;
-    canvas.style.width = mazeWidth;
+    canvas.style.height = mazeHeight + 'px';
+    canvas.style.width = mazeWidth + 'px';
 
+    this.cells = []; // Reset the cells for the new maze
     for (let col = 0; col < this.cols; col++) {
       this.cells[col] = [];
       for (let row = 0; row < this.rows; row++) {
@@ -122,10 +117,10 @@ class Maze {
     this.redraw();
   }
 
-  hasUnvisited() {
+  hasUnvisited(cells) {
     for (let col = 0; col < this.cols; col++) {
       for (let row = 0; row < this.rows; row++) {
-        if (!this.cells[col][row].visited) {
+        if (!cells[col][row].visited) {
           return true;
         }
       }
@@ -133,22 +128,33 @@ class Maze {
     return false;
   }
 
-  hasUnvisitedNeighbor(mazeCell) {
+  hasUnvisitedNeighbor(currCell) {
+    let col = currCell.col;
+    let row = currCell.row;
     return (
-      (mazeCell.col !== 0 && !this.cells[mazeCell.col - 1][mazeCell.row].visited) ||
-      (mazeCell.col !== (this.cols - 1) && !this.cells[mazeCell.col + 1][mazeCell.row].visited) ||
-      (mazeCell.row !== 0 && !this.cells[mazeCell.col][mazeCell.row - 1].visited) ||
-      (mazeCell.row !== (this.rows - 1) && !this.cells[mazeCell.col][mazeCell.row + 1].visited)
+      (col < this.cols - 1 && !this.cells[col + 1][row].visited) ||
+      (row > 0 && !this.cells[col][row - 1].visited) ||
+      (row < this.rows - 1 && !this.cells[col][row + 1].visited) ||
+      (col > 0 && !this.cells[col - 1][row].visited)
     );
   }
 
+  increaseLevel() {
+    currentLevel++;
+    this.cols = 10 + currentLevel;  // Increase size by 1 with each level
+    this.rows = 10 + currentLevel;  // Increase size by 1 with each level
+    this.generate();
+  }
+
   redraw() {
-    ctx.fillStyle = this.backgroundColor;
-    ctx.fillRect(0, 0, mazeHeight, mazeWidth);
-    ctx.fillStyle = this.endColor;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, mazeWidth, mazeHeight);
+
+    ctx.fillStyle = 'green'; // End cell color
     ctx.fillRect((this.cols - 1) * this.cellSize, (this.rows - 1) * this.cellSize, this.cellSize, this.cellSize);
-    ctx.strokeStyle = this.mazeColor;
-    ctx.strokeRect(0, 0, mazeHeight, mazeWidth);
+
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(0, 0, mazeWidth, mazeHeight);
 
     for (let col = 0; col < this.cols; col++) {
       for (let row = 0; row < this.rows; row++) {
@@ -179,7 +185,7 @@ class Maze {
       }
     }
 
-    ctx.fillStyle = this.playerColor;
+    ctx.fillStyle = 'blue'; // Player color
     ctx.fillRect((player.col * this.cellSize) + 2, (player.row * this.cellSize) + 2, this.cellSize - 4, this.cellSize - 4);
   }
 }
@@ -213,6 +219,7 @@ class Achievements {
   checkMazeCompletion() {
     if (player.col === maze.cols - 1 && player.row === maze.rows - 1 && !this.achievements.mazeCompletion) {
       this.unlockAchievement('mazeCompletion');
+      levelCompleted = true; // Trigger level completion when the player reaches the end
     }
   }
 
@@ -286,6 +293,12 @@ function onKeyDown(event) {
   achievements.checkExploration();
   achievements.checkNoDeath();
 
+  if (levelCompleted) {
+    player.reset();  // Reset player to the top-left corner (0, 0)
+    maze.increaseLevel();  // Generate next level with a bigger maze
+    levelCompleted = false; // Reset level completion status
+  }
+
   maze.redraw();
   displayAchievements();
 }
@@ -302,7 +315,7 @@ function onLoad() {
   ctx = canvas.getContext('2d');
 
   player = new Player();
-  maze = new Maze(20, 20, 25);
+  maze = new Maze(10, 10, 25); // Start with a 10x10 maze for level 1
   achievements = new Achievements();
 
   startTimer(); // Start the timer when the game loads
@@ -313,6 +326,49 @@ function onLoad() {
   document.getElementById('right').addEventListener('click', onControlClick);
   document.getElementById('down').addEventListener('click', onControlClick);
   document.getElementById('left').addEventListener('click', onControlClick);
+}
+
+function onControlClick(event) {
+  const direction = event.target.id;
+  switch (direction) {
+    case 'up':
+      if (!maze.cells[player.col][player.row].northWall) {
+        player.row -= 1;
+      }
+      break;
+    case 'right':
+      if (!maze.cells[player.col][player.row].eastWall) {
+        player.col += 1;
+      }
+      break;
+    case 'down':
+      if (!maze.cells[player.col][player.row].southWall) {
+        player.row += 1;
+      }
+      break;
+    case 'left':
+      if (!maze.cells[player.col][player.row].westWall) {
+        player.col -= 1;
+      }
+      break;
+    default:
+      break;
+  }
+
+  achievements.checkFirstMove();
+  achievements.checkMazeCompletion();
+  achievements.checkSpeedRun();
+  achievements.checkExploration();
+  achievements.checkNoDeath();
+
+  if (levelCompleted) {
+    player.reset();
+    maze.increaseLevel();
+    levelCompleted = false;
+  }
+
+  maze.redraw();
+  displayAchievements();
 }
 
 document.addEventListener('DOMContentLoaded', onLoad);
