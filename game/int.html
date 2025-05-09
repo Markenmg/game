@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Menu</title>
+    <link rel="stylesheet" href="ints.css"> 
+        <link rel="icon" href="all/favicon.ico" type="image/x-icon">
+    
+</head>
+<body>
+
+    <!---->
+    <div id="main-menu">
+         <!--fore time -->
+        <button onclick="window.location.href='game/game.html';">Game</button>
+         <!--line 3-4 games-->
+        <button onclick="goTo('game')">Game</button>
+        <button onclick="goTo('Settings')">Settings</button>
+        <button onclick="goTo('top-players')">Top Players</button>
+        <button onclick="goTo('credits')">Credits</button>
+    </div>
+    <!--need to add more game now works 1 game -->
+    <div id="game" class="section">
+        <h2>Game</h2>
+        <p><button onclick="window.location.href='game/game.html';">Game</button></p>
+        <p><button onclick="window.location.href='game/game.html';">Game</button></p>
+        <p><button onclick="window.location.href='game/game.html';">Game</button></p>
+        <button onclick="goBack()">Back to Menu</button>
+    </div>
+
+    <div id="settings" class="section">
+        <h2>Settings</h2>
+        <p>Adjust your game settings here.</p>
+        <button onclick="goBack()">Back to Menu</button>
+    </div>
+
+    <div id="top-players" class="section">
+        <h2>Top Players</h2>
+        <p>See the top players' leaderboard here.</p>
+        <button onclick="goBack()">Back to Menu</button>
+    </div>
+
+    <div id="credits" class="section">
+        <h2>Credits</h2>
+        <p>Game developed by Marekn.</p>
+        <button onclick="goBack()">Back to Menu</button>
+    </div>
+
+    <script src="intj.js"></script>
+</body>
+</html>
