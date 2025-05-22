@@ -147,7 +147,9 @@ class Maze {
   increaseLevel() {
     currentLevel++;
 
-    if (currentLevel > 2) {
+// u can set levels to max //
+    if (currentLevel > 5) {
+      
       stopTimer();
       alert(`Game Over! You completed ${currentLevel - 1} levels in ${totalTime} seconds.`);
       this.resetGame();

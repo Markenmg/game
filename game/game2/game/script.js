@@ -7,7 +7,6 @@ let player;
 let achievements;
 let timerInterval;
 let elapsedTime = 0;
-let totalTime = 0;
 let currentLevel = 1;
 let levelCompleted = false;
 
@@ -146,16 +145,6 @@ class Maze {
 
   increaseLevel() {
     currentLevel++;
-
-// u can set levels to max //
-    if (currentLevel > 10) {
-      
-      stopTimer();
-      alert(`Game Over! You completed ${currentLevel - 1} levels in ${totalTime} seconds.`);
-      this.resetGame();
-      return;
-    }
-
     this.cols = 10 + currentLevel;
     this.rows = 10 + currentLevel;
     this.generate();
@@ -203,28 +192,73 @@ class Maze {
     ctx.fillStyle = 'blue';
     ctx.fillRect((player.col * this.cellSize) + 2, (player.row * this.cellSize) + 2, this.cellSize - 4, this.cellSize - 4);
   }
+}
 
-  resetGame() {
-    currentLevel = 1;
-    totalTime = 0;
-    elapsedTime = 0;
-    maze = new Maze(10, 10, 25);
-    player.reset();
-    startTimer();
+class Achievements {
+  constructor() {
+    this.achievements = {
+      firstMove: false,
+      mazeCompletion: false,
+      speedRun: false,
+      exploration: false,
+      noDeath: false
+    };
+    this.startTime = Date.now();
+    this.visitedCells = new Set();
+  }
+
+  unlockAchievement(achievementName) {
+    if (!this.achievements[achievementName]) {
+      this.achievements[achievementName] = true;
+      console.log(`Achievement Unlocked: ${achievementName}`);
+    }
+  }
+
+  checkFirstMove() {
+    if (!this.achievements.firstMove) {
+      this.unlockAchievement('firstMove');
+    }
+  }
+
+  checkMazeCompletion() {
+    if (player.col === maze.cols - 1 && player.row === maze.rows - 1 && !this.achievements.mazeCompletion) {
+      this.unlockAchievement('mazeCompletion');
+      levelCompleted = true;
+    }
+  }
+
+  checkSpeedRun() {
+    const timeTaken = (Date.now() - this.startTime) / 1000;
+    if (timeTaken < 60 && !this.achievements.speedRun) {
+      this.unlockAchievement('speedRun');
+    }
+  }
+
+  checkExploration() {
+    const cellId = `${player.col},${player.row}`;
+    this.visitedCells.add(cellId);
+    if (this.visitedCells.size >= 100 && !this.achievements.exploration) {
+      this.unlockAchievement('exploration');
+    }
+  }
+
+  checkNoDeath() {
+    if (this.achievements.mazeCompletion && player.col === maze.cols - 1 && player.row === maze.rows - 1 && !this.achievements.noDeath) {
+      this.unlockAchievement('noDeath');
+    }
   }
 }
 
-function startTimer() {
-  timerInterval = setInterval(() => {
-    elapsedTime++;
-    document.getElementById('timerDisplay').textContent = `Time: ${elapsedTime}s`;
-  }, 1000);
-}
-
-function stopTimer() {
-  clearInterval(timerInterval);
-  totalTime += elapsedTime;
-  elapsedTime = 0;
+function displayAchievements() {
+  const achievementList = document.getElementById('achievementList');
+  achievementList.innerHTML = '';
+  for (let achievement in achievements.achievements) {
+    if (achievements.achievements[achievement]) {
+      const li = document.createElement('li');
+      li.textContent = achievement;
+      achievementList.appendChild(li);
+    }
+  }
 }
 
 function onKeyDown(event) {
@@ -257,9 +291,84 @@ function onKeyDown(event) {
       break;
   }
 
-  if (player.col === maze.cols - 1 && player.row === maze.rows - 1) {
-    levelCompleted = true;
+  achievements.checkFirstMove();
+  achievements.checkMazeCompletion();
+  achievements.checkSpeedRun();
+  achievements.checkExploration();
+  achievements.checkNoDeath();
+
+  if (levelCompleted) {
+    stopTimer();
+    player.reset();  
+    maze.increaseLevel();  
+    levelCompleted = false; 
   }
+
+  maze.redraw();
+  displayAchievements();
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    elapsedTime++;
+    document.getElementById('timerDisplay').textContent = `Time: ${elapsedTime}s`;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+function onLoad() {
+  canvas = document.getElementById('mainForm');
+  ctx = canvas.getContext('2d');
+
+  player = new Player();
+  maze = new Maze(10, 10, 25);
+  achievements = new Achievements();
+
+  startTimer(); 
+
+  document.addEventListener('keydown', onKeyDown);
+  document.getElementById('generate').addEventListener('click', onClick);
+  document.getElementById('up').addEventListener('click', onControlClick);
+  document.getElementById('right').addEventListener('click', onControlClick);
+  document.getElementById('down').addEventListener('click', onControlClick);
+  document.getElementById('left').addEventListener('click', onControlClick);
+}
+
+function onControlClick(event) {
+  const direction = event.target.id;
+  switch (direction) {
+    case 'up':
+      if (!maze.cells[player.col][player.row].northWall) {
+        player.row -= 1;
+      }
+      break;
+    case 'right':
+      if (!maze.cells[player.col][player.row].eastWall) {
+        player.col += 1;
+      }
+      break;
+    case 'down':
+      if (!maze.cells[player.col][player.row].southWall) {
+        player.row += 1;
+      }
+      break;
+    case 'left':
+      if (!maze.cells[player.col][player.row].westWall) {
+        player.col -= 1;
+      }
+      break;
+    default:
+      break;
+  }
+
+  achievements.checkFirstMove();
+  achievements.checkMazeCompletion();
+  achievements.checkSpeedRun();
+  achievements.checkExploration();
+  achievements.checkNoDeath();
 
   if (levelCompleted) {
     stopTimer();
@@ -269,18 +378,7 @@ function onKeyDown(event) {
   }
 
   maze.redraw();
-}
-
-function onLoad() {
-  canvas = document.getElementById('mainForm');
-  ctx = canvas.getContext('2d');
-
-  player = new Player();
-  maze = new Maze(10, 10, 25);
-
-  startTimer();
-
-  document.addEventListener('keydown', onKeyDown);
+  displayAchievements();
 }
 
 document.addEventListener('DOMContentLoaded', onLoad);
