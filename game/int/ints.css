@@ -1,39 +1,104 @@
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #282c34;
+    background-color: #1e1e2f;
     color: white;
     text-align: center;
 }
 
+/* Main Menu */
 #main-menu {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 90%;
+    max-width: 400px;
 }
 
+/* Section (hidden by default) */
 .section {
     display: none;
-    padding: 20px;
+    padding: 2rem;
     border: 2px solid #fff;
-    margin-top: 20px;
-    background-color: #444;
-    border-radius: 10px;
+    background-color: #2c2f4a;
+    border-radius: 12px;
+    margin: 1rem auto;
+    width: 90%;
+    max-width: 600px;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button Base Style */
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 10px;
+    padding: 1.5rem 2rem;
+    font-size: 1rem;
     cursor: pointer;
-    background-color: #333;
-    border: none;
-    border-radius: 5px;
+    background-color: #b9e3ff;
+    border: 1px solid #ffffff;
+    border-radius: 6px;
+    color: #0e062f;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+}
+
+/* Hover Effects */
+button:hover {
+    background-color: #ffffff;
+    color: #1e1e2f;
+    transform: translateY(-2px);
+}
+
+/* Secondary Button (e.g. Back) */
+button.secondary {
+    background: transparent;
+    border: 1px solid #ffffff;
+    color: white;
+    padding: 1rem;
+    margin-top: 1rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Secondary Hover */
+button.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #b9e3ff;
+}
+
+#main-menu button:first-of-type {
+    background-color:  #5cbeff;
+    color: #0e062f;
+}
+
+#main-menu button:first-of-type:hover {
+    background-color: #b9e3ff;
+    color: 0e062f;
+}
+
+/* Other buttons blue */
+#main-menu button:not(:first-of-type) {
+    background-color: #1e2449;  /* nice blue */
     color: white;
 }
 
-button:hover {
-    background-color: #555;
+#main-menu button:not(:first-of-type):hover {
+    background-color: #1e2449;
+    color: white;
 }

@@ -1,22 +1,19 @@
-// Function to navigate between sections
-function goTo(section) {
+function goTo(sectionId) {
     // Hide all sections
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(sec => sec.style.display = 'none');
+    document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
 
-    // Show the selected section
-    document.getElementById(section).style.display = 'block';
-
-    // Hide the main menu
+    // Hide main menu
     document.getElementById('main-menu').style.display = 'none';
+
+    // Show target section (lowercase for consistency)
+    const section = document.getElementById(sectionId.toLowerCase());
+    if (section) section.style.display = 'block';
 }
 
-// Function to go back to the main menu
 function goBack() {
-    // Show the main menu
-    document.getElementById('main-menu').style.display = 'block';
-
     // Hide all sections
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(sec => sec.style.display = 'none');
+    document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+
+    // Show main menu
+    document.getElementById('main-menu').style.display = 'flex';
 }
